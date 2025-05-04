@@ -1,6 +1,61 @@
 import { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 
+// StepBar component (moderne, cohérent avec DocumentsUpload)
+const StepBar = ({ currentStep = 5 }) => {
+  const steps = [
+    { number: 1, label: 'Simulation crédit' },
+    { number: 2, label: 'Info personnelles' },
+    { number: 3, label: 'Info professionnelles' },
+    { number: 4, label: 'Info financières' },
+    { number: 5, label: 'Choix Agence' },
+    { number: 6, label: 'Documents' }
+  ];
+
+  return (
+    <div className="flex justify-center mb-8">
+      <div className="flex items-center">
+        {steps.map((step, index) => {
+          const isCompleted = currentStep > step.number;
+          const isActive = currentStep === step.number;
+
+          return (
+            <div key={step.number} className="flex items-center">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
+                    isCompleted
+                      ? 'bg-green-500 text-white'
+                      : isActive
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {isCompleted ? '✓' : step.number}
+                </div>
+                <span
+                  className={`text-xs ${
+                    isActive ? 'font-medium text-blue-700' : 'text-gray-600'
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`h-px w-8 mx-2 ${
+                    isCompleted ? 'bg-green-500' : isActive ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const AgencySelection = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,14 +113,20 @@ const AgencySelection = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <StepBar currentStep={5} />
+
       <div className="mb-8">
-        <Link to="/infos-financiers" className="text-blue-600 hover:underline">
-          ← Retour
-        </Link>
+      <button
+  onClick={() => navigate('/infos-financiers', { state: simulationData })}
+  className="text-blue-600 hover:underline"
+>
+  ← Retour
+</button>
+
         {simulationData.creditType && (
           <div className="mt-4 bg-blue-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold text-blue-800">
-              {simulationData.creditType} : {simulationData.monthlyPayment}DT/mois
+              {simulationData.creditType} : {simulationData.monthlyPayment} DT/mois
             </h3>
           </div>
         )}
@@ -153,7 +214,7 @@ const AgencySelection = () => {
             }`}
             disabled={!selectedGovernorate || !selectedCity || !selectedAgency}
           >
-            Compléter mon dossier
+           Suivant
           </button>
         </div>
       </div>

@@ -2,6 +2,86 @@ import { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
+// Barre de progression uniforme
+const StepBar = ({ currentStep = 1 }) => {
+  const steps = [
+    { number: 1, label: 'Simulation' },
+    { number: 2, label: 'Personnelles' },
+    { number: 3, label: 'Professionnelles' },
+    { number: 4, label: 'Financières' },
+    { number: 5, label: 'Choix Agence' },
+    { number: 6, label: 'Documents' }
+  ];
+
+  return (
+    <div className="flex flex-col items-center mb-8">
+      <div className="flex items-center">
+        {steps.map((step, index) => {
+          const isCompleted = step.number < currentStep;
+          const isCurrent = step.number === currentStep;
+
+          return (
+            <div key={step.number} className="flex items-center">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 text-sm font-semibold ${
+                    isCompleted
+                      ? 'bg-green-500 text-white'
+                      : isCurrent
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {isCompleted ? '✓' : step.number}
+                </div>
+                <span className={`text-xs ${isCurrent ? 'font-medium text-blue-700' : 'text-gray-600'}`}>
+                  {step.label}
+                </span>
+              </div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`h-px w-8 mx-2 ${
+                    step.number < currentStep
+                      ? 'bg-green-500'
+                      : step.number === currentStep
+                      ? 'bg-blue-500'
+                      : 'bg-gray-300'
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Encart de simulation */}
+      {currentStep === 2 && (
+        <div className="mt-4 bg-blue-50 p-3 rounded-lg border border-blue-200 max-w-3xl w-full text-sm text-blue-700">
+          <SimulationInfo />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Composant pour afficher les infos de simulation si elles existent
+const SimulationInfo = () => {
+  const { state } = useLocation();
+  const simulationData = state || {};
+
+  if (!simulationData?.creditType) return null;
+
+  return (
+    <p>
+      <strong>Type:</strong> {simulationData.creditType} |{' '}
+      <strong>Montant:</strong> {new Intl.NumberFormat('fr-FR').format(simulationData.loanAmount)} DT |{' '}
+      <strong>Durée:</strong> {simulationData.duration} mois |{' '}
+      <strong>Taux:</strong> {simulationData.annualRate}% |{' '}
+      <strong>Mensualité:</strong> {simulationData.monthlyPayment} DT
+    </p>
+  );
+};
+
 const PersonalInfoForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,48 +101,10 @@ const PersonalInfoForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  // Composant de la barre d'étapes
-  const StepBar = ({ currentStep = 2 }) => {
-    const steps = [
-      { number: 1, label: 'Simulation crédit' },
-      { number: 2, label: 'Info personnelles' },
-      { number: 3, label: 'Info professionnelles' },
-      { number: 4, label: 'Info financières' },
-      { number: 5, label: 'Upload documents' }
-    ];
-
-    return (
-      <div className="flex justify-center mb-10">
-        <div className="flex items-center">
-          {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 ${
-                  currentStep >= step.number ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {step.number}
-                </div>
-                <span className={`text-sm font-medium ${
-                  currentStep >= step.number ? 'text-blue-600' : 'text-gray-500'
-                }`}>{step.label}</span>
-              </div>
-              
-              {index < steps.length - 1 && (
-                <div className={`h-px w-16 ${currentStep > step.number ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   const validateField = (name, value) => {
     let error = '';
-    switch(name) {
+    switch (name) {
       case 'cin':
-        if (!/^\d{8}$/.test(value)) error = '8 chiffres requis';
-        break;
       case 'phone':
         if (!/^\d{8}$/.test(value)) error = '8 chiffres requis';
         break;
@@ -87,12 +129,10 @@ const PersonalInfoForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    const validationResults = Object.entries(formData).map(([name, value]) => 
-      validateField(name, value)
-    );
 
-    if (validationResults.some(valid => !valid)) {
+    const isValid = Object.entries(formData).every(([name, value]) => validateField(name, value));
+
+    if (!isValid) {
       alert('Veuillez corriger les erreurs dans le formulaire');
       return;
     }
@@ -103,19 +143,17 @@ const PersonalInfoForm = () => {
     }
 
     setIsSubmitting(true);
-    
-    // Redirection vers ProfessionalInfo
-    navigate('/professional-info', { 
-      state: { 
+
+    navigate('/professional-info', {
+      state: {
         ...simulationData,
-        personalInfo: formData 
-      } 
+        personalInfo: formData
+      }
     });
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white min-h-screen">
-      {/* Barre d'étapes - Étape 2 active */}
       <StepBar currentStep={2} />
 
       <div className="mb-8">
@@ -123,19 +161,6 @@ const PersonalInfoForm = () => {
           <ArrowLeftIcon className="h-5 w-5 mr-1" />
           Retour à la simulation
         </Link>
-        {simulationData.creditType && (
-          <div className="mt-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">
-              Simulation de crédit: {simulationData.creditType}
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <p><span className="font-medium">Montant:</span> {new Intl.NumberFormat('fr-FR').format(simulationData.loanAmount)} DT</p>
-              <p><span className="font-medium">Durée:</span> {simulationData.duration} mois</p>
-              <p><span className="font-medium">Taux:</span> {simulationData.annualRate}%</p>
-              <p><span className="font-medium">Mensualité:</span> {simulationData.monthlyPayment} DT</p>
-            </div>
-          </div>
-        )}
       </div>
 
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Informations personnelles</h2>
@@ -171,31 +196,44 @@ const PersonalInfoForm = () => {
           ))}
         </div>
 
-        {/* Case à cocher pour accepter les règles */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="flex items-start">
-            <div className="flex items-center h-5">
-              <input
-                id="accept-terms"
-                name="accept-terms"
-                type="checkbox"
-                checked={acceptTerms}
-                onChange={(e) => setAcceptTerms(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                required
-              />
-            </div>
-            <div className="ml-3 text-sm">
-              <label htmlFor="accept-terms" className="font-medium text-gray-700">
-                J'accepte les conditions générales
-              </label>
-              <p className="text-gray-500">
-                En cochant cette case, je reconnais avoir lu et accepté les conditions
-                générales d'utilisation et la politique de confidentialité.
-              </p>
-            </div>
-          </div>
-        </div>
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4 text-justify text-sm text-gray-700">
+  <details className="mb-2">
+    <summary className="cursor-pointer text-blue-600">Voir plus...</summary>
+    <p className="mt-2">
+      Les données personnelles pourront donner lieu à l’exercice du droit d’accès, de rectification et d’opposition dans les conditions prévues par la loi organique n° 2004-63 du 27 juillet 2004, portant sur la protection des données à caractère personnel, par courrier adressé à Attijari bank Tunisie.
+      <br /><br />
+      Du fait de la validation de sa demande de simulation du crédit, l’utilisateur déclare être informé des dispositions précédentes et autorise expressément la banque à traiter ces données pour les finalités et dans les conditions ci-dessus.
+    </p>
+  </details>
+
+  <div className="flex items-start">
+    <input
+      id="confirm-accuracy"
+      name="confirm-accuracy"
+      type="checkbox"
+      className="h-4 w-4 mt-1 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      required
+    />
+    <label htmlFor="confirm-accuracy" className="ml-3 text-sm">
+      Je confirme l’exactitude des informations renseignées
+    </label>
+  </div>
+
+  <div className="flex items-start">
+    <input
+      id="accept-terms"
+      name="accept-terms"
+      type="checkbox"
+      checked={acceptTerms}
+      onChange={(e) => setAcceptTerms(e.target.checked)}
+      className="h-4 w-4 mt-1 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      required
+    />
+    <label htmlFor="accept-terms" className="ml-3 text-sm">
+      J’ai lu et j’accepte les conditions générales d’utilisation
+    </label>
+  </div>
+</div>
 
         <div className="flex justify-end pt-4">
           <button

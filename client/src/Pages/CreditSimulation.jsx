@@ -6,14 +6,14 @@ const CreditSimulation = () => {
   const [selectedCredit, setSelectedCredit] = useState(null);
   const [loanAmount, setLoanAmount] = useState(10000);
   const [duration, setDuration] = useState(36);
-  const [tmmRate] = useState(7.25); // TMM fixé pour l'exemple
+  const [tmmRate] = useState(7.25);
   const [clientType, setClientType] = useState('salarié secteur public');
-  const [currentStep] = useState(1);
+  const currentStep = 1;
 
   const creditTypes = [
-    { 
-      id: 1, 
-      name: 'CREDIT CONSOMMATION', 
+    {
+      id: 1,
+      name: 'CREDIT CONSOMMATION',
       icon: '🛒',
       description: 'Financement sans objet',
       maxAmount: null,
@@ -24,9 +24,9 @@ const CreditSimulation = () => {
       insuranceRate: 0.005,
       comments: 'Éligibilité: CDI ou ancienneté > 1 an. Documents: CNI, bulletins de salaire, RIB'
     },
-    { 
-      id: 2, 
-      name: 'CREDIT AMENAGEMENT', 
+    {
+      id: 2,
+      name: 'CREDIT AMENAGEMENT',
       icon: '🏠',
       description: 'Financement avec objet (devis/facture pro format requis)',
       maxAmount: null,
@@ -37,9 +37,9 @@ const CreditSimulation = () => {
       insuranceRate: 0.005,
       comments: 'Devis obligatoire. Autofinancement: 0%. Documents: CNI, bulletins de salaire, RIB, devis'
     },
-    { 
-      id: 3, 
-      name: 'CREDIT ORDINATEUR', 
+    {
+      id: 3,
+      name: 'CREDIT ORDINATEUR',
       icon: '💻',
       description: 'Financement avec objet (facture pro format requise)',
       maxAmount: 2500,
@@ -65,22 +65,18 @@ const CreditSimulation = () => {
 
   const calculateMonthlyPayment = () => {
     if (!selectedCredit) return 0;
-    
     const annualRate = selectedCredit.rateFormula(tmmRate) / 100;
     const monthlyRate = annualRate / 12;
     const monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -duration));
     const insurance = loanAmount * selectedCredit.insuranceRate / 12;
-    
     return (monthlyPayment + insurance).toFixed(2);
   };
 
   const handleContinue = () => {
-    console.log("Continue clicked");
     if (!selectedCredit) {
       alert('Veuillez sélectionner un type de crédit');
       return;
     }
-
     const simulationData = {
       creditType: selectedCredit.name,
       annualRate: selectedCredit.rateFormula(tmmRate),
@@ -90,29 +86,54 @@ const CreditSimulation = () => {
       clientType,
       tmmRate,
     };
-    
-
     navigate('/personal-info', { state: simulationData });
   };
+
+  const steps = [
+    { number: 1, label: 'Simulation' },
+    { number: 2, label: 'Personnelles' },
+    { number: 3, label: 'Professionnelles' },
+    { number: 4, label: 'Financières' },
+    { number: 5, label: 'Choix Agence' },
+    { number: 6, label: 'Documents' }
+  ];
 
   const StepBar = () => (
     <div className="flex justify-center mb-10">
       <div className="flex items-center">
-        {[1, 2, 3, 4, 5].map((step, index) => (
-          <div key={step} className="flex items-center">
+        {steps.map((step, index) => (
+          <div key={step.number} className="flex items-center">
             <div className="flex flex-col items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 ${
-                currentStep >= step ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-              }`}>
-                {step}
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
+                  currentStep > step.number
+                    ? 'bg-green-500 text-white'
+                    : currentStep === step.number
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-600'
+                }`}
+              >
+                {currentStep > step.number ? '✓' : step.number}
               </div>
-              <span className={`text-sm font-medium ${
-                currentStep >= step ? 'text-blue-600' : 'text-gray-500'
-              }`}>
-                {['Simulation crédit', 'Info personnelles', 'Info professionnelles', 'Info financières', 'Upload documents'][step - 1]}
+              <span
+                className={`text-xs ${
+                  currentStep === step.number ? 'font-medium text-blue-700' : 'text-gray-600'
+                }`}
+              >
+                {step.label}
               </span>
             </div>
-            {index < 4 && <div className={`h-px w-16 ${currentStep > step ? 'bg-blue-600' : 'bg-gray-300'}`}></div>}
+            {index < steps.length - 1 && (
+              <div
+                className={`h-px w-8 mx-2 ${
+                  currentStep > step.number
+                    ? 'bg-green-500'
+                    : currentStep === step.number
+                    ? 'bg-blue-500'
+                    : 'bg-gray-300'
+                }`}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -123,19 +144,20 @@ const CreditSimulation = () => {
     <div className="max-w-3xl mx-auto p-6 min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <StepBar />
 
+      {/* Bloc crédit */}
       <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
         <h1 className="text-3xl font-bold text-center mb-6 text-blue-800">
           <span className="border-b-4 border-blue-500 pb-2">Choisissez votre type de crédit</span>
         </h1>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {creditTypes.map((credit) => (
             <div
               key={credit.id}
               onClick={() => handleCreditSelection(credit)}
               className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
-                selectedCredit?.id === credit.id 
-                  ? 'border-blue-500 bg-blue-50 shadow-md' 
+                selectedCredit?.id === credit.id
+                  ? 'border-blue-500 bg-blue-50 shadow-md'
                   : 'border-gray-200 hover:border-blue-300 bg-white'
               }`}
             >
@@ -152,18 +174,18 @@ const CreditSimulation = () => {
         </div>
       </div>
 
+      {/* Paramètres */}
       {selectedCredit && (
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <h2 className="text-2xl font-bold mb-6 text-blue-800 flex items-center">
             <span className="bg-blue-100 p-2 rounded-full mr-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              💡
             </span>
             Paramètres du crédit
           </h2>
-          
+
           <div className="space-y-6">
+            {/* Montant */}
             <div>
               <label className="block text-gray-700 font-medium mb-3">
                 Montant du crédit (DT)
@@ -187,6 +209,7 @@ const CreditSimulation = () => {
               </div>
             </div>
 
+            {/* Durée */}
             <div>
               <label className="block text-gray-700 font-medium mb-3">
                 Durée (mois)
@@ -210,6 +233,7 @@ const CreditSimulation = () => {
               </div>
             </div>
 
+            {/* Type de client */}
             <div>
               <label className="block text-gray-700 font-medium mb-3">Type de client</label>
               <select
@@ -223,6 +247,7 @@ const CreditSimulation = () => {
               </select>
             </div>
 
+            {/* Résumé */}
             <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
               <h3 className="text-xl font-bold mb-4 text-blue-800">Récapitulatif</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -248,13 +273,14 @@ const CreditSimulation = () => {
         </div>
       )}
 
+      {/* Bouton */}
       <div className="text-center">
         <button
           onClick={handleContinue}
           disabled={!selectedCredit}
           className={`px-10 py-4 rounded-full font-bold text-lg transition-all duration-300 ${
-            selectedCredit 
-              ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-900 transform hover:-translate-y-1' 
+            selectedCredit
+              ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-900 transform hover:-translate-y-1'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >

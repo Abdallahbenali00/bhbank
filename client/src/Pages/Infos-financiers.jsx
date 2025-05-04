@@ -12,8 +12,7 @@ import { toast } from 'react-toastify';
 const FinancialInfo = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Vérification des données reçues
+
   useEffect(() => {
     if (!location.state?.professionalInfo) {
       toast.warning('Veuillez compléter les informations professionnelles d\'abord');
@@ -34,14 +33,14 @@ const FinancialInfo = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Barre d'étapes
   const StepBar = () => {
     const steps = [
       { number: 1, label: 'Simulation' },
       { number: 2, label: 'Personnelles' },
       { number: 3, label: 'Professionnelles' },
       { number: 4, label: 'Financières' },
-      { number: 5, label: 'Documents' }
+      { number: 5, label: 'Choix Agence ' },
+      { number: 6, label: 'Documents' }
     ];
 
     return (
@@ -51,9 +50,10 @@ const FinancialInfo = () => {
             <div key={step.number} className="flex items-center">
               <div className="flex flex-col items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
-                  index < 3 ? 'bg-green-500 text-white' : 
-                  index === 3 ? 'bg-blue-500 text-white' : 
-                  'bg-gray-200'}`}>
+                  index < 3 ? 'bg-green-500 text-white' :
+                  index === 3 ? 'bg-blue-500 text-white' :
+                  'bg-gray-200'
+                }`}>
                   {index < 3 ? '✓' : step.number}
                 </div>
                 <span className={`text-xs ${index === 3 ? 'font-medium' : ''}`}>
@@ -99,9 +99,8 @@ const FinancialInfo = () => {
 
     setIsSubmitting(true);
 
-    // Simulation de traitement
     setTimeout(() => {
-      navigate('/documents-upload', {
+      navigate('/demande-eligible', {
         state: { 
           ...simulationData,
           professionalInfo,
@@ -148,7 +147,7 @@ const FinancialInfo = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Section Revenus */}
+          {/* Revenus */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <h2 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
               <CurrencyDollarIcon className="w-5 h-5 mr-2" />
@@ -200,7 +199,7 @@ const FinancialInfo = () => {
             </div>
           </div>
 
-          {/* Section Dépenses */}
+          {/* Engagements financiers */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <h2 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
               <CreditCardIcon className="w-5 h-5 mr-2" />
@@ -268,7 +267,7 @@ const FinancialInfo = () => {
             </div>
           </div>
 
-          {/* Boutons de navigation */}
+          {/* Boutons */}
           <div className="flex justify-between pt-4">
             <button
               type="button"
