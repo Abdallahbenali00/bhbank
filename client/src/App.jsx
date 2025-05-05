@@ -20,7 +20,8 @@ import Dashboard from './Pages/Dashboard';
 import CreditsPage from "./admin/CreditsPage.jsx";
 import CreditDetails from "./admin/CreditDetails.jsx";
 import Reclamations from "./admin/ReclamationsTable.jsx"
-
+import Admin from "./admin/Admin.jsx"
+import UsersPage from "./admin/UsersPage.jsx"
 
 function App() {
   return (
@@ -42,9 +43,11 @@ function App() {
         <Route path="/documents-upload" element={<DocumentUpload />} />
         <Route path="/demande-eligible" element={<DemandeEligible />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<CreditsPage />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/credits" element={<CreditsPage />} />
         <Route path="/admin/credits/:id" element={<CreditDetails />} />
         <Route path="/admin/rec" element={<Reclamations />} />
+        <Route path="/admin/users" element={<UsersPage/>} />
 
 
 
