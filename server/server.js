@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 
 import authRoutes from './routes/authRoutes.js';
 import creditRoutes from './routes/creditRoutes.js';
+import reclamationRoutes from './routes/reclamationRoutes.js';
 
 dotenv.config();
 
@@ -16,6 +17,13 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/req', creditRoutes); 
+app.use('/api/rec', reclamationRoutes);
+
+
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

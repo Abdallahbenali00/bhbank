@@ -1,14 +1,32 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { CheckCircle, X, Facebook, Twitter, Linkedin } from "lucide-react";
 
 const Contact = () => {
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setTimeout(() => {
+    try {
+      await axios.post("http://localhost:5000/api/rec/post", formData);
       setShowModal(true);
-    }, 300);
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Erreur lors de l'envoi :", error);
+    }
   };
 
   return (
@@ -26,6 +44,9 @@ const Contact = () => {
               <label className="block text-gray-700 mb-2">Nom</label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
               />
@@ -35,6 +56,9 @@ const Contact = () => {
               <label className="block text-gray-700 mb-2">Email</label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
               />
@@ -43,7 +67,10 @@ const Contact = () => {
             <div className="mb-4">
               <label className="block text-gray-700 mb-2">Message</label>
               <textarea
+                name="message"
                 rows="4"
+                value={formData.message}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600"
               ></textarea>

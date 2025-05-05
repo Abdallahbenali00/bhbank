@@ -19,6 +19,7 @@ import DemandeEligible from "./pages/demande-eligible.jsx";
 import Dashboard from './Pages/Dashboard';
 import CreditsPage from "./admin/CreditsPage.jsx";
 import CreditDetails from "./admin/CreditDetails.jsx";
+import Reclamations from "./admin/ReclamationsTable.jsx"
 
 
 function App() {
@@ -43,7 +44,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<CreditsPage />} />
         <Route path="/admin/credits/:id" element={<CreditDetails />} />
-
+        <Route path="/admin/rec" element={<Reclamations />} />
 
 
 
