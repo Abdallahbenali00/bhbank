@@ -17,7 +17,8 @@ import InfosFinanciers from "./pages/Infos-financiers.jsx";
 import DocumentUpload from "./pages/documentUpload.jsx";
 import DemandeEligible from "./pages/demande-eligible.jsx";
 import Dashboard from './Pages/Dashboard';
-
+import CreditsPage from "./admin/CreditsPage.jsx";
+import CreditDetails from "./admin/CreditDetails.jsx";
 
 
 function App() {
@@ -40,6 +41,9 @@ function App() {
         <Route path="/documents-upload" element={<DocumentUpload />} />
         <Route path="/demande-eligible" element={<DemandeEligible />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<CreditsPage />} />
+        <Route path="/admin/credits/:id" element={<CreditDetails />} />
+
 
 
 

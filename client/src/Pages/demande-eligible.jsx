@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 // StepBar component (moderne, cohérent avec DocumentsUpload)
 const StepBar = ({ currentStep = 5 }) => {
@@ -99,7 +101,7 @@ const AgencySelection = () => {
     "Nabeul": ["Agence Nabeul Ville", "Agence Hammamet"]
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const completeData = {
       ...simulationData,
       agencyInfo: {
@@ -108,9 +110,18 @@ const AgencySelection = () => {
         agency: selectedAgency
       }
     };
-    navigate('/documents-upload', { state: completeData });
+  
+    try {
+      const response = await axios.post('http://localhost:5000/api/req/credits', completeData);
+      console.log('Crédit enregistré :', response.data);
+  
+      navigate('/documents-upload', { state: completeData });
+    } catch (error) {
+      console.error("Erreur lors de l'envoi :", error);
+      alert("Une erreur est survenue lors de la soumission de votre demande.");
+    }
   };
-
+  
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <StepBar currentStep={5} />

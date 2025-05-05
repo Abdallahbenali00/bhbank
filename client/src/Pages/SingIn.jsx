@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import axios from 'axios'; 
+import 'react-toastify/dist/ReactToastify.css';
 import BhPhoto from '../assets/BH-Bank.jpg';
 import { validateCin, validateRip } from '../functions/validate';
 
@@ -10,32 +12,50 @@ const SignIn = () => {
   const [Rip, setRip] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     let CinError = '';
     let RipError = '';
-
+  
     if (!validateCin(Cin)) {
       CinError = 'Le CIN doit contenir exactement 8 chiffres.';
     }
-
+  
     if (!validateRip(Rip)) {
       RipError = 'Le RIB doit contenir exactement 12 chiffres.';
     }
-
+  
     if (CinError || RipError) {
       setErrors({ Cin: CinError, Rip: RipError });
-
+  
       if (CinError) toast.error(CinError);
       if (RipError) toast.error(RipError);
       return;
     }
-
-    toast.success('Connexion réussie ! Redirection en cours...');
-    setTimeout(() => {
-      navigate('/'); // redirige vers Home ("/")
-    }, 1000);
+  
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        CIN: Cin,
+        RIB: Rip,
+      });
+  
+      toast.success('✅ Connexion réussie !');
+  
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('admin', response.data.user.admin); // optional
+  
+      // Redirect based on admin flag
+      if (response.data.user.admin === 1) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+  
+    } catch (error) {
+      const errMsg = error.response?.data?.error || 'Erreur de connexion.';
+      toast.error(`❌ ${errMsg}`);
+    }
   };
 
   return (
@@ -45,7 +65,7 @@ const SignIn = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Connexion</h2>
 
         <form onSubmit={handleSubmit}>
-          {/* CIN */}
+          {/* CIN Input */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">CIN</label>
             <input
@@ -61,7 +81,7 @@ const SignIn = () => {
             {errors.Cin && <p className="text-red-500 text-sm mt-1">{errors.Cin}</p>}
           </div>
 
-          {/* RIB */}
+          {/* RIB Input */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-1">RIB</label>
             <input
@@ -77,7 +97,7 @@ const SignIn = () => {
             {errors.Rip && <p className="text-red-500 text-sm mt-1">{errors.Rip}</p>}
           </div>
 
-          {/* Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300"

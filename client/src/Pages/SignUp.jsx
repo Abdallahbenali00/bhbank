@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 import BhPhoto from '../assets/BH-Bank.jpg';
 import { validateEmail, validateCin, validateRip } from '../functions/validate';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignUp = () => {
   const [errors, setErrors] = useState({});
@@ -11,6 +12,7 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [Cin, setCin] = useState('');
   const [Rip, setRip] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,39 +20,35 @@ const SignUp = () => {
     let emailError = '';
     let CinError = '';
     let RipError = '';
+    let passwordError = '';
 
-    if (!validateEmail(email)) {
-      emailError = 'Adresse email invalide';
-    }
+    if (!validateEmail(email)) emailError = 'Adresse email invalide';
+    if (!validateCin(Cin)) CinError = 'Le CIN doit contenir 8 chiffres.';
+    if (!validateRip(Rip)) RipError = 'Le RIB doit contenir 12 chiffres.';
+    if (password.length < 6) passwordError = 'Mot de passe trop court.';
 
-    if (!validateCin(Cin)) {
-      CinError = 'Le CIN doit contenir uniquement des chiffres et être exactement de 8 caractères.';
-    }
-
-    if (!validateRip(Rip)) {
-      RipError = 'Le RIB doit contenir exactement 12 chiffres.';
-    }
-
-    if (emailError || CinError || RipError) {
-      setErrors({ email: emailError, Cin: CinError, Rip: RipError });
-
+    if (emailError || CinError || RipError || passwordError) {
+      setErrors({ email: emailError, Cin: CinError, Rip: RipError, password: passwordError });
       if (emailError) toast.error(emailError);
       if (CinError) toast.error(CinError);
       if (RipError) toast.error(RipError);
-
+      if (passwordError) toast.error(passwordError);
       return;
     }
 
-    toast.success('✅ Inscription réussie !', {
-      position: 'top-center',
-      autoClose: 3000,
-      pauseOnHover: false,
-    });
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/register', {
+        email,
+        password,
+        CIN: Cin,
+        RIB: Rip,
+      });
 
-    // Redirige vers Home après 3s
-    setTimeout(() => {
-      navigate('/');
-    }, 3100);
+      toast.success('✅ Inscription réussie !');
+      setTimeout(() => navigate('/signin'), 3000);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erreur serveur');
+    }
   };
 
   return (
@@ -61,66 +59,63 @@ const SignUp = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label>Email</label>
             <input
               type="email"
-              placeholder="exemple@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition duration-300 ${
-                errors.email ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-red-500'
-              }`}
+              className="w-full px-4 py-2 border rounded-lg"
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label>Mot de passe</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
           </div>
 
           {/* CIN */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">CIN</label>
+            <label>CIN</label>
             <input
               type="text"
-              placeholder="8 chiffres"
               maxLength={8}
               value={Cin}
               onChange={(e) => setCin(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition duration-300 ${
-                errors.Cin ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-red-500'
-              }`}
+              className="w-full px-4 py-2 border rounded-lg"
             />
-            {errors.Cin && <p className="text-red-500 text-sm mt-1">{errors.Cin}</p>}
+            {errors.Cin && <p className="text-red-500 text-sm">{errors.Cin}</p>}
           </div>
 
           {/* RIB */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">RIB</label>
+            <label>RIB</label>
             <input
               type="text"
-              placeholder="12 chiffres"
               maxLength={12}
               value={Rip}
               onChange={(e) => setRip(e.target.value)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none transition duration-300 ${
-                errors.Rip ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-red-500'
-              }`}
+              className="w-full px-4 py-2 border rounded-lg"
             />
-            {errors.Rip && <p className="text-red-500 text-sm mt-1">{errors.Rip}</p>}
+            {errors.Rip && <p className="text-red-500 text-sm">{errors.Rip}</p>}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 px-4 rounded-xl text-lg font-medium transition duration-300"
+            className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg"
           >
             S'inscrire
           </button>
         </form>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Vous avez déjà un compte ?{' '}
-          <Link to="/signin" className="text-red-600 hover:underline font-medium">
-            Se connecter
-          </Link>
+        <p className="text-center text-sm mt-6">
+          Déjà inscrit ? <Link to="/signin" className="text-red-600">Se connecter</Link>
         </p>
       </div>
     </div>
