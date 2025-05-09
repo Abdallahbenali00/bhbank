@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { 
-  CurrencyDollarIcon, 
   ChartBarIcon, 
   ArrowLeftIcon, 
   ArrowRightIcon,
@@ -150,7 +149,7 @@ const FinancialInfo = () => {
           {/* Revenus */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <h2 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
-              <CurrencyDollarIcon className="w-5 h-5 mr-2" />
+              <span className="w-5 h-5 mr-2 text-gray-500">DT</span>
               Revenus Mensuels
             </h2>
 
@@ -160,7 +159,7 @@ const FinancialInfo = () => {
                   Revenu net mensuel *
                 </label>
                 <div className="relative">
-                  <CurrencyDollarIcon className="w-5 h-5 absolute left-3 top-3 text-gray-500" />
+                  <span className="absolute left-3 top-2.5 text-gray-600 text-sm">DT</span>
                   <input
                     type="number"
                     name="monthlyIncome"
@@ -184,7 +183,7 @@ const FinancialInfo = () => {
                   Autres revenus
                 </label>
                 <div className="relative">
-                  <CurrencyDollarIcon className="w-5 h-5 absolute left-3 top-3 text-gray-500" />
+                  <span className="absolute left-3 top-2.5 text-gray-600 text-sm">DT</span>
                   <input
                     type="number"
                     name="otherIncome"
@@ -245,7 +244,7 @@ const FinancialInfo = () => {
                     Montant total des mensualités *
                   </label>
                   <div className="relative">
-                    <CurrencyDollarIcon className="w-5 h-5 absolute left-3 top-3 text-gray-500" />
+                    <span className="absolute left-3 top-2.5 text-gray-600 text-sm">DT</span>
                     <input
                       type="number"
                       name="loanAmount"

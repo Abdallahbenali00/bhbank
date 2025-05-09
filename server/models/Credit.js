@@ -35,7 +35,18 @@ const creditSchema = new mongoose.Schema({
     city: String,
     agency: String
   },
-  
+
+  documents: {
+    type: Map,
+    of: {
+      originalName: String,
+      path: String,
+      mimetype: String,
+      size: Number
+    },
+    default: {}
+  },
+
   status: {
     type: String,
     enum: ['en attente', 'approuvé', 'rejeté'],
@@ -45,9 +56,7 @@ const creditSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  },
-
-
+  }
 });
 
 export default mongoose.model('Credit', creditSchema);

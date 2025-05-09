@@ -6,7 +6,6 @@ import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
-import Chat from "./pages/chat.jsx";
 import PersonalInfo from "./pages/PersonalInfo.jsx";
 import Contact from "./pages/Contact.jsx";
 import CreditSimulation from "./Pages/CreditSimulation.jsx";
@@ -22,6 +21,8 @@ import CreditDetails from "./admin/CreditDetails.jsx";
 import Reclamations from "./admin/ReclamationsTable.jsx"
 import Admin from "./admin/Admin.jsx"
 import UsersPage from "./admin/UsersPage.jsx"
+import Document from "./Pages/Document.jsx";
+
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
         
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/chat" element={<Chat />} />
+
         <Route path="/personal-info" element={<PersonalInfo />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/credit-simulation" element={<CreditSimulation />} />
@@ -48,6 +49,9 @@ function App() {
         <Route path="/admin/credits/:id" element={<CreditDetails />} />
         <Route path="/admin/rec" element={<Reclamations />} />
         <Route path="/admin/users" element={<UsersPage/>} />
+        
+        <Route path="/doc" element={<Document/>} />
+      
 
 
 

@@ -6,12 +6,12 @@ import axios from 'axios';
 // StepBar component (moderne, cohérent avec DocumentsUpload)
 const StepBar = ({ currentStep = 5 }) => {
   const steps = [
-    { number: 1, label: 'Simulation crédit' },
-    { number: 2, label: 'Info personnelles' },
-    { number: 3, label: 'Info professionnelles' },
-    { number: 4, label: 'Info financières' },
-    { number: 5, label: 'Choix Agence' },
-    { number: 6, label: 'Documents' }
+   { number: 1, label: 'Simulation' },
+      { number: 2, label: 'Personnelles' },
+      { number: 3, label: 'Professionnelles' },
+      { number: 4, label: 'Financières' },
+      { number: 5, label: 'Choix Agence ' },
+      { number: 6, label: 'Documents' }
   ];
 
   return (
